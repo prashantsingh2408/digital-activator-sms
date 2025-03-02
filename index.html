@@ -4,168 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SMS Prototype</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .phone {
-            width: 300px;
-            height: 600px;
-            background-color: #fff;
-            border-radius: 30px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            border: 10px solid #333;
-        }
-
-        .phone-header {
-            background-color: #f8f8f8;
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            align-items: center;
-        }
-
-        .phone-header h3 {
-            margin: 0;
-            font-size: 16px;
-        }
-
-        .phone-header .avatar {
-            width: 30px;
-            height: 30px;
-            background-color: #ccc;
-            border-radius: 50%;
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-        }
-
-        .twilio-avatar {
-            background-color: #F22F46;
-        }
-
-        .user-avatar {
-            background-color: #0088cc;
-        }
-
-        .chat-area {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            background-color: #e5ddd5;
-        }
-
-        .message {
-            max-width: 80%;
-            padding: 10px;
-            border-radius: 15px;
-            margin-bottom: 5px;
-            position: relative;
-            word-wrap: break-word;
-        }
-
-        .received {
-            align-self: flex-start;
-            background-color: white;
-            border-top-left-radius: 5px;
-        }
-
-        .sent {
-            align-self: flex-end;
-            background-color: #dcf8c6;
-            border-top-right-radius: 5px;
-        }
-
-        .message-time {
-            font-size: 10px;
-            color: #999;
-            text-align: right;
-            margin-top: 5px;
-        }
-
-        .input-area {
-            padding: 15px;
-            border-top: 1px solid #ddd;
-            display: flex;
-            background-color: #f8f8f8;
-        }
-
-        .message-input {
-            flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            margin-right: 10px;
-        }
-
-        .send-button {
-            width: 40px;
-            height: 40px;
-            background-color: #128C7E;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .controls {
-            margin-top: 20px;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .control-button {
-            padding: 10px 20px;
-            background-color: #4285F4;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .phone-label {
-            text-align: center;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        #connection-status {
-            margin: 20px 0;
-            padding: 10px;
-            background-color: #ffc107;
-            border-radius: 5px;
-            display: none;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <h1>Internet Over SMS | Prototype</h1>
@@ -175,23 +14,6 @@
     </div>
 
     <div class="container">
-        <div>
-            <div class="phone-label">Twilio (+1 262-683-4806)</div>
-            <div class="phone" id="twilio-phone">
-                <div class="phone-header">
-                    <div class="avatar twilio-avatar">T</div>
-                    <h3>Chat with +91 8417 891491</h3>
-                </div>
-                <div class="chat-area" id="twilio-chat">
-                    <!-- Messages will be added here by JavaScript -->
-                </div>
-                <div class="input-area">
-                    <input type="text" class="message-input" id="twilio-input" placeholder="Type a message...">
-                    <button class="send-button" id="twilio-send">➤</button>
-                </div>
-            </div>
-        </div>
-
         <div>
             <div class="phone-label">User (+91 8417 891491)</div>
             <div class="phone" id="user-phone">
@@ -203,7 +25,8 @@
                     <!-- Messages will be added here by JavaScript -->
                 </div>
                 <div class="input-area">
-                    <input type="text" class="message-input" id="user-input" placeholder="Type a message...">
+                    <input type="text" class="message-input" id="user-input" placeholder="Type a message..." maxlength="160">
+                    <div id="char-counter" class="character-counter">160 chars left</div>
                     <button class="send-button" id="user-send">➤</button>
                 </div>
             </div>
@@ -213,134 +36,30 @@
     <div class="controls">
         <button class="control-button" id="reset-chat">Reset Chat</button>
         <button class="control-button" id="simulate-convo">Simulate Conversation</button>
+        <button class="control-button" id="toggle-prompt">Show Prompt</button>
+        <button class="control-button" id="toggle-debug">Debug: On</button>
     </div>
-
-    <script>
-        // Get DOM elements
-        const twilioChat = document.getElementById('twilio-chat');
-        const userChat = document.getElementById('user-chat');
-        const twilioInput = document.getElementById('twilio-input');
-        const userInput = document.getElementById('user-input');
-        const twilioSend = document.getElementById('twilio-send');
-        const userSend = document.getElementById('user-send');
-        const resetChat = document.getElementById('reset-chat');
-        const simulateConvo = document.getElementById('simulate-convo');
-        const connectionStatus = document.getElementById('connection-status');
-
-        // Function to get current time in HH:MM format
-        function getCurrentTime() {
-            const now = new Date();
-            let hours = now.getHours();
-            let minutes = now.getMinutes();
-            const ampm = hours >= 12 ? 'PM' : 'AM';
-            
-            hours = hours % 12;
-            hours = hours ? hours : 12;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            
-            return `${hours}:${minutes} ${ampm}`;
-        }
-
-        // Function to add a message to a chat
-        function addMessage(chatElement, message, isSent = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            messageDiv.classList.add(isSent ? 'sent' : 'received');
-            
-            messageDiv.innerHTML = `
-                ${message}
-                <div class="message-time">${getCurrentTime()}</div>
-            `;
-            
-            chatElement.appendChild(messageDiv);
-            chatElement.scrollTop = chatElement.scrollHeight;
-        }
-
-        // Event listeners for send buttons
-        twilioSend.addEventListener('click', function() {
-            const message = twilioInput.value.trim();
-            if (message) {
-                // Add message to Twilio chat as sent
-                addMessage(twilioChat, message, true);
-                
-                // Add message to User chat as received
-                addMessage(userChat, message, false);
-                
-                twilioInput.value = '';
-            }
-        });
-
-        userSend.addEventListener('click', function() {
-            const message = userInput.value.trim();
-            if (message) {
-                // Add message to User chat as sent
-                addMessage(userChat, message, true);
-                
-                // Add message to Twilio chat as received
-                addMessage(twilioChat, message, false);
-                
-                userInput.value = '';
-            }
-        });
-
-        // Event listeners for input fields (Enter key)
-        twilioInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                twilioSend.click();
-            }
-        });
-
-        userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                userSend.click();
-            }
-        });
-
-        // Reset chat button
-        resetChat.addEventListener('click', function() {
-            twilioChat.innerHTML = '';
-            userChat.innerHTML = '';
-        });
-
-        // Simulate conversation button
-        simulateConvo.addEventListener('click', function() {
-            // Clear chats
-            twilioChat.innerHTML = '';
-            userChat.innerHTML = '';
-            
-            // Simulate a conversation
-            setTimeout(() => {
-                twilioInput.value = "Hello! This is a test message from Twilio. Reply with any text to test the webhook.";
-                twilioSend.click();
-            }, 500);
-            
-            setTimeout(() => {
-                userInput.value = "Hi there! I'm replying to test the webhook.";
-                userSend.click();
-            }, 2000);
-            
-            setTimeout(() => {
-                twilioInput.value = "Thanks for your reply! This confirms that both sending and receiving SMS are working!";
-                twilioSend.click();
-            }, 3500);
-        });
-
-        // Optional: Add ability to connect to actual Twilio server
-        // This is a placeholder - in a real implementation, you would connect to your server
-        function checkConnection() {
-            connectionStatus.style.display = 'block';
-            connectionStatus.textContent = 'This is a local simulation only. Not connected to actual Twilio service.';
-            connectionStatus.style.backgroundColor = '#f8d7da';
-            
-            setTimeout(() => {
-                connectionStatus.style.display = 'none';
-            }, 5000);
-        }
-
-        // Initialize the page
-        window.onload = function() {
-            checkConnection();
-        };
-    </script>
+    
+    <div id="prompt-display" class="prompt-container">
+        <!-- System prompt will be displayed here -->
+    </div>
+    
+    <div class="debug-info">
+        <p>Debug Tools: Open browser console (F12) to see API requests and responses</p>
+        <p>Available console commands:</p>
+        <ul>
+            <li><code>toggleAPIDebug(true/false)</code> - Enable/disable API debugging</li>
+            <li><code>clearAPICache()</code> - Clear the API response cache</li>
+        </ul>
+    </div>
+    
+    <!-- Load all JavaScript files -->
+    <script src="connection.js"></script>
+    <script src="prompt.js"></script>
+    <script src="api.js"></script>
+    <script src="ui.js"></script>
+    <script src="events.js"></script>
+    <script src="chat-app.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
