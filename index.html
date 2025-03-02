@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SMS Prototype</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -25,8 +25,7 @@
                     <!-- Messages will be added here by JavaScript -->
                 </div>
                 <div class="input-area">
-                    <input type="text" class="message-input" id="user-input" placeholder="Type a message..." maxlength="160">
-                    <div id="char-counter" class="character-counter">160 chars left</div>
+                    <input type="text" class="message-input" id="user-input" placeholder="Type a message...(160 chars max)" maxlength="160">
                     <button class="send-button" id="user-send">➤</button>
                 </div>
             </div>
